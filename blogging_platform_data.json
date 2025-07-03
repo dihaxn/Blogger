@@ -1,0 +1,76 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "email": "admin@gmail.com",
+      "password": "admin123",
+      "role": "admin"
+    },
+    {
+      "id": "2",
+      "email": "user1@example.com",
+      "password": "password123",
+      "role": "user"
+    }
+  ],
+  "posts": [
+    {
+      "id": "1",
+      "title": "Welcome to Bloggy",
+      "content": "This is your first blog post. Start writing amazing content!",
+      "author": "admin",
+      "authorId": 1,
+      "createdAt": "2025-01-01T10:00:00Z",
+      "updatedAt": "2025-01-01T10:00:00Z",
+      "category": "General",
+      "tags": [
+        "welcome",
+        "intro"
+      ],
+      "published": true
+    },
+    {
+      "id": "2",
+      "title": "Getting Started with React",
+      "content": "Learn how to build modern web applications with React...",
+      "author": "admin",
+      "authorId": 1,
+      "createdAt": "2025-01-02T14:30:00Z",
+      "updatedAt": "2025-01-02T14:30:00Z",
+      "category": "Technology",
+      "tags": [
+        "react",
+        "javascript",
+        "tutorial"
+      ],
+      "published": true
+    }
+  ],
+  "categories": [
+    {
+      "id": "1",
+      "name": "General",
+      "description": "General blog posts"
+    },
+    {
+      "id": "2",
+      "name": "Technology",
+      "description": "Technology related posts"
+    },
+    {
+      "id": "3",
+      "name": "Lifestyle",
+      "description": "Lifestyle and personal posts"
+    }
+  ],
+  "comments": [
+    {
+      "id": "1",
+      "postId": 1,
+      "author": "user1",
+      "authorId": 2,
+      "content": "Great post! Looking forward to more content.",
+      "createdAt": "2025-01-01T12:00:00Z"
+    }
+  ]
+}
