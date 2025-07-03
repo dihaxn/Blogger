@@ -1,120 +1,278 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 
 const Home = () => {
+    const [recentPosts, setRecentPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    // Mock recent posts data
+    const mockRecentPosts = [
+        {
+            id: 1,
+            title: "Getting Started with React 18",
+            excerpt: "React 18 introduces several new features that make building user interfaces even more powerful...",
+            category: "Technology",
+            author: "John Doe",
+            publishDate: "2024-01-15",
+            readTime: "5 min read",
+            image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800",
+            featured: true
+        },
+        {
+            id: 2,
+            title: "The Art of Minimalist Living",
+            excerpt: "Discover how minimalism can transform your life and bring more focus to what truly matters...",
+            category: "Lifestyle",
+            author: "Jane Smith",
+            publishDate: "2024-01-10",
+            readTime: "8 min read",
+            image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800",
+            featured: false
+        },
+        {
+            id: 3,
+            title: "Building Scalable Node.js Applications",
+            excerpt: "Learn the best practices for creating robust and scalable backend applications...",
+            category: "Technology",
+            author: "Mike Johnson",
+            publishDate: "2024-01-08",
+            readTime: "12 min read",
+            image: "https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=800",
+            featured: false
+        },
+        {
+            id: 4,
+            title: "Healthy Meal Prep Ideas",
+            excerpt: "Transform your weekly routine with these delicious and nutritious meal prep ideas...",
+            category: "Health",
+            author: "Sarah Wilson",
+            publishDate: "2024-01-05",
+            readTime: "6 min read",
+            image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800",
+            featured: false
+        }
+    ];
+
+    useEffect(() => {
+        // Simulate API call
+        setTimeout(() => {
+            setRecentPosts(mockRecentPosts);
+            setLoading(false);
+        }, 800);
+    }, []);
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+        });
+    };
+
+    const featuredPost = recentPosts.find(post => post.featured);
+    const regularPosts = recentPosts.filter(post => !post.featured);
+
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20">
-            <div className="max-w-screen-xl mx-auto p-5 sm:p-10 md:p-16 relative">
-                <div className="grid grid-cols-1 sm:grid-cols-12 gap-10">
-
-                    <div className="sm:col-span-6 lg:col-span-5">
-                        <a href="#">
-                            <div className="h-56 bg-cover text-center overflow-hidden rounded-lg shadow-md"
-                                 style={{backgroundImage: "url('https://tailwindcss.com/img/card-left.jpg')"}}
-                                 title="Woman holding a mug">
-                            </div>
-                        </a>
-                        <div className="mt-3 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 flex flex-col justify-between leading-normal">
-                            <div className="lg:pl-0">
-                                <a href="#"
-                                   className="text-xs text-indigo-600 dark:text-indigo-400 uppercase font-medium mb-3 flex items-center hover:text-gray-900 dark:hover:text-gray-100 transition duration-500 ease-in-out">
-                                    Fashion
-                                </a>
-                                <a href="#"
-                                   className="text-gray-900 dark:text-white font-bold text-lg mb-2 hover:text-indigo-600 dark:hover:text-indigo-400 transition duration-500 ease-in-out">The
-                                    perfect summer sweater that you can wear! </a>
-                                <p className="text-gray-700 dark:text-gray-300 text-xs mt-2">Lorem ipsum dolor sit amet, consectetur
-                                    adipisicing elit.
-                                    Voluptatibus quia, nulla! Maiores et perferendis eaque, exercitationem praesentium
-                                    nihil.
-                                </p>
-                            </div>
-                        </div>
+            {/* Hero Section */}
+            <section className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white py-20">
+                <div className="absolute inset-0 bg-black opacity-20"></div>
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <h1 className="text-5xl md:text-6xl font-bold mb-6 animate-fadeInUp">
+                        Welcome to <span className="text-yellow-300">Bloggy</span>
+                    </h1>
+                    <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto opacity-90 animate-fadeInUp" style={{animationDelay: '0.2s'}}>
+                        Discover amazing stories, insights, and knowledge from our community of passionate writers
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fadeInUp" style={{animationDelay: '0.4s'}}>
+                        <button className="px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg shadow-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105">
+                            Explore Articles
+                        </button>
+                        <button className="px-8 py-4 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-blue-600 transition-all duration-300 transform hover:scale-105">
+                            Join Community
+                        </button>
                     </div>
-
-                    <div className="sm:col-span-6 lg:col-span-4">
-                        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 space-y-6">
-                            <div className="flex items-start">
-                                <a href="#" className="inline-block mr-3">
-                                    <div className="w-20 h-20 bg-cover bg-center rounded-lg"
-                                         style={{backgroundImage: "url(https://media.gettyimages.com/photos/cristiano-ronaldo-of-juventus-fc-looks-dejected-during-the-uefa-of-picture-id1227967060?k=6&m=1227967060&s=612x612&w=0&h=cMSMlRyI6YAzcE_C2KgHGRLeVojHYoUhIvhwPBYv8f4=)"}}>
-                                    </div>
-                                </a>
-                                <div className="text-sm">
-                                    <p className="text-gray-600 dark:text-gray-400 text-xs">Aug 18</p>
-                                    <a href="#" className="text-gray-900 dark:text-white font-medium hover:text-indigo-600 dark:hover:text-indigo-400 leading-none">Cristiano
-                                        Ronaldo
-                                        of Juventus FC looks dejected during the...</a>
-                                </div>
-                            </div>
-                            
-                            <div className="flex items-start">
-                                <a href="#" className="inline-block mr-3">
-                                    <div className="w-20 h-20 bg-cover bg-center rounded-lg"
-                                         style={{backgroundImage: "url(https://media.gettyimages.com/photos/lionel-messi-and-marcandre-ter-stegen-of-fc-barcelona-waits-in-the-picture-id1266763488?k=6&m=1266763488&s=612x612&w=0&h=8vxz9HfQVfrff5N7d1lBVxtLamRQGK3J3lyHkUuuIiw=)"}}>
-                                    </div>
-                                </a>
-                                <div className="text-sm w-2/3">
-                                    <p className="text-gray-600 dark:text-gray-400 text-xs">Jan 18</p>
-                                    <a href="#" className="text-gray-900 dark:text-white font-medium hover:text-indigo-600 dark:hover:text-indigo-400 leading-none">Barcelona
-                                        v Bayern
-                                        Munich </a>
-                                </div>
-                            </div>
-                            
-                            <div className="flex items-start">
-                                <a href="#" className="inline-block mr-3">
-                                    <div className="w-20 h-20 bg-cover bg-center rounded-lg"
-                                         style={{backgroundImage: "url(https://media.gettyimages.com/photos/cristiano-ronaldo-of-juventus-fc-looks-dejected-during-the-uefa-of-picture-id1227967060?k=6&m=1227967060&s=612x612&w=0&h=cMSMlRyI6YAzcE_C2KgHGRLeVojHYoUhIvhwPBYv8f4=)"}}>
-                                    </div>
-                                </a>
-                                <div className="text-sm">
-                                    <p className="text-gray-600 dark:text-gray-400 text-xs">Aug 18</p>
-                                    <a href="#" className="text-gray-900 dark:text-white font-medium hover:text-indigo-600 dark:hover:text-indigo-400 leading-none">Cristiano
-                                        Ronaldo
-                                        of Juventus FC looks dejected during the...</a>
-                                </div>
-                            </div>
-                            
-                            <div className="flex items-start">
-                                <a href="#" className="inline-block mr-3">
-                                    <div className="w-20 h-20 bg-cover bg-center rounded-lg"
-                                         style={{backgroundImage: "url(https://media.gettyimages.com/photos/lionel-messi-of-fc-barcelona-looks-dejected-following-his-teams-in-picture-id1266341828?k=6&m=1266341828&s=612x612&w=0&h=FZi-bSrIlOEE01780h79GsbBYPqZo2l3aaCxoktWADY=)"}}>
-                                    </div>
-                                </a>
-                                <div className="text-sm w-2/3">
-                                    <p className="text-gray-600 dark:text-gray-400 text-xs">July 23</p>
-                                    <a href="#" className="text-gray-900 dark:text-white font-medium hover:text-indigo-600 dark:hover:text-indigo-400 leading-none">Barcelona
-                                        v Bayern
-                                        Munich - UEFA Champions League </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="sm:col-span-12 lg:col-span-3">
-                        <a href="#">
-                            <div className="h-56 bg-cover text-center overflow-hidden rounded-lg shadow-md"
-                                 style={{backgroundImage: "url('https://tailwindcss.com/img/card-left.jpg')"}}
-                                 title="Woman holding a mug">
-                            </div>
-                        </a>
-                        <div className="mt-3 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 flex flex-col justify-between leading-normal">
-                            <div className="">
-                                <a href="#"
-                                   className="text-xs text-indigo-600 dark:text-indigo-400 uppercase font-medium flex items-center hover:text-gray-900 dark:hover:text-gray-100 transition duration-500 ease-in-out">
-                                    Fashion
-                                </a>
-                                <a href="#"
-                                   className="text-gray-900 dark:text-white font-bold text-lg mb-2 hover:text-indigo-600 dark:hover:text-indigo-400 transition duration-500 ease-in-out">The
-                                    perfect summer sweater that you can wear! </a>
-                                <p className="text-gray-700 dark:text-gray-300 text-xs mt-2">Lorem ipsum dolor sit amet, consectetur
-                                    adipisicing elit.</p>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
-            </div>
+            </section>
+
+            {/* Recent Posts Section */}
+            <section className="py-16">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* Section Header */}
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                            Latest Articles
+                        </h2>
+                        <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                            Stay updated with our newest content covering technology, lifestyle, and more
+                        </p>
+                    </div>
+
+                    {loading ? (
+                        /* Loading Skeleton */
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                            <div className="lg:col-span-8">
+                                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden animate-pulse">
+                                    <div className="w-full h-96 bg-gray-300 dark:bg-gray-700"></div>
+                                    <div className="p-8">
+                                        <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded mb-4"></div>
+                                        <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded mb-2"></div>
+                                        <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-3/4"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="lg:col-span-4 space-y-6">
+                                {[...Array(3)].map((_, index) => (
+                                    <div key={index} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden animate-pulse">
+                                        <div className="flex">
+                                            <div className="w-24 h-24 bg-gray-300 dark:bg-gray-700"></div>
+                                            <div className="p-4 flex-1">
+                                                <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded mb-2"></div>
+                                                <div className="h-3 bg-gray-300 dark:bg-gray-700 rounded w-2/3"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                            {/* Featured Post */}
+                            {featuredPost && (
+                                <div className="lg:col-span-8">
+                                    <article className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl group">
+                                        <div className="relative overflow-hidden">
+                                            <img
+                                                src={featuredPost.image}
+                                                alt={featuredPost.title}
+                                                className="w-full h-96 object-cover transition-transform duration-500 group-hover:scale-110"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
+                                            <div className="absolute top-6 left-6">
+                                                <span className="px-3 py-1 bg-yellow-500 text-black text-sm font-bold rounded-full">
+                                                    ⭐ Featured
+                                                </span>
+                                            </div>
+                                            <div className="absolute bottom-6 left-6 right-6 text-white">
+                                                <span className="px-3 py-1 bg-blue-600 text-white text-sm font-semibold rounded-full">
+                                                    {featuredPost.category}
+                                                </span>
+                                                <h3 className="text-2xl md:text-3xl font-bold mt-4 mb-2">
+                                                    {featuredPost.title}
+                                                </h3>
+                                                <p className="text-gray-200 mb-4">
+                                                    {featuredPost.excerpt}
+                                                </p>
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center">
+                                                        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
+                                                            <span className="text-white text-sm font-semibold">
+                                                                {featuredPost.author.charAt(0)}
+                                                            </span>
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-semibold">{featuredPost.author}</p>
+                                                            <p className="text-sm text-gray-300">
+                                                                {formatDate(featuredPost.publishDate)} • {featuredPost.readTime}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <button className="px-6 py-2 bg-white text-gray-900 font-semibold rounded-lg hover:bg-gray-100 transition-colors duration-200 transform hover:scale-105">
+                                                        Read More
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                            )}
+
+                            {/* Recent Posts Sidebar */}
+                            <div className="lg:col-span-4">
+                                <div className="space-y-6">
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white border-b-2 border-blue-600 pb-2">
+                                        Recent Posts
+                                    </h3>
+
+                                    {regularPosts.map((post, index) => (
+                                        <article
+                                            key={post.id}
+                                            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl group"
+                                            style={{
+                                                animationDelay: `${index * 100}ms`
+                                            }}
+                                        >
+                                            <div className="flex">
+                                                <div className="relative w-24 h-24 overflow-hidden">
+                                                    <img
+                                                        src={post.image}
+                                                        alt={post.title}
+                                                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                                    />
+                                                </div>
+                                                <div className="p-4 flex-1">
+                                                    <div className="flex items-center justify-between mb-2">
+                                                        <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 text-xs font-semibold rounded">
+                                                            {post.category}
+                                                        </span>
+                                                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                                                            {formatDate(post.publishDate)}
+                                                        </span>
+                                                    </div>
+                                                    <h4 className="font-bold text-gray-900 dark:text-white text-sm mb-2 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
+                                                        {post.title}
+                                                    </h4>
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                                                            {post.readTime}
+                                                        </span>
+                                                        <button className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-xs font-medium transition-colors duration-200">
+                                                            Read →
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </article>
+                                    ))}
+                                </div>
+
+                                {/* Call to Action */}
+                                <div className="mt-8 p-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl text-white text-center">
+                                    <h4 className="font-bold text-lg mb-2">Want to see more?</h4>
+                                    <p className="text-blue-100 mb-4 text-sm">
+                                        Explore our full collection of articles
+                                    </p>
+                                    <button className="px-6 py-2 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105">
+                                        View All Articles
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </section>
+
+            {/* Newsletter Section */}
+            <section className="py-16 bg-white dark:bg-gray-800">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                        Stay Updated
+                    </h2>
+                    <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
+                        Subscribe to our newsletter and never miss a new article
+                    </p>
+                    <div className="flex flex-col sm:flex-row max-w-md mx-auto gap-4">
+                        <input
+                            type="email"
+                            placeholder="Enter your email"
+                            className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200"
+                        />
+                        <button className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105">
+                            Subscribe
+                        </button>
+                    </div>
+                </div>
+            </section>
         </div>
     );
 };
