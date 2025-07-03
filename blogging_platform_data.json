@@ -11,6 +11,12 @@
       "email": "user1@example.com",
       "password": "password123",
       "role": "user"
+    },
+    {
+      "id": "9af4",
+      "email": "ihanlaknuka@gmail.com",
+      "password": "dihanlak",
+      "role": "user"
     }
   ],
   "posts": [
