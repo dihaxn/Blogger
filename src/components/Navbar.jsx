@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logout } from "../features/auth/AuthSlice.jsx";
 import { useNavigate } from "react-router-dom";
 
+
 const Navbar = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -27,14 +28,21 @@ const Navbar = () => {
                                 <span className="text-white hidden md:block">Welcome, {user?.email}</span>
                                 <button
                                     onClick={handleLogout}
-                                    className="text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg"
+                                    className="flex items-center justify-center bg-red-600 hover:bg-red-700 w-12 h-12 rounded-full p-2"
                                 >
-                                    Logout
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6 stroke-white stroke-2 fill-none">
+                                        <circle cx="12" cy="8" r="3" />
+                                        <path d="M6 20c0-4 4-6 6-6s6 2 6 6" />
+                                    </svg>
                                 </button>
+
                             </div>
                         ) : (
-                            <a href="/login" className="text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg">
-                                Login
+                            <a href="/login" className="text-white bg-blue-600 hover:bg-blue-700 px-2 py-2 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6 stroke-white stroke-2 fill-none">
+                                    <circle cx="12" cy="8" r="3" />
+                                    <path d="M6 20c0-4 4-6 6-6s6 2 6 6" />
+                                </svg>
                             </a>
                         )}
                         <button data-collapse-toggle="navbar-search" type="button" className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-search" aria-expanded="false">
