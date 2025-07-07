@@ -1,76 +1,13 @@
-
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useGetPostsQuery } from '../features/post/postApiSlice';
+import { formatDate } from '../utils/helpers';
 
 const Home = () => {
-    const [recentPosts, setRecentPosts] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { data: posts = [], isLoading} = useGetPostsQuery();
 
-    // Mock recent posts data
-    const mockRecentPosts = [
-        {
-            id: 1,
-            title: "Getting Started with React 18",
-            excerpt: "React 18 introduces several new features that make building user interfaces even more powerful...",
-            category: "Technology",
-            author: "John Doe",
-            publishDate: "2024-01-15",
-            readTime: "5 min read",
-            image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800",
-            featured: true
-        },
-        {
-            id: 2,
-            title: "The Art of Minimalist Living",
-            excerpt: "Discover how minimalism can transform your life and bring more focus to what truly matters...",
-            category: "Lifestyle",
-            author: "Jane Smith",
-            publishDate: "2024-01-10",
-            readTime: "8 min read",
-            image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800",
-            featured: false
-        },
-        {
-            id: 3,
-            title: "Building Scalable Node.js Applications",
-            excerpt: "Learn the best practices for creating robust and scalable backend applications...",
-            category: "Technology",
-            author: "Mike Johnson",
-            publishDate: "2024-01-08",
-            readTime: "12 min read",
-            image: "https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=800",
-            featured: false
-        },
-        {
-            id: 4,
-            title: "Healthy Meal Prep Ideas",
-            excerpt: "Transform your weekly routine with these delicious and nutritious meal prep ideas...",
-            category: "Health",
-            author: "Sarah Wilson",
-            publishDate: "2024-01-05",
-            readTime: "6 min read",
-            image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800",
-            featured: false
-        }
-    ];
-
-    useEffect(() => {
-        // Simulate API call
-        setTimeout(() => {
-            setRecentPosts(mockRecentPosts);
-            setLoading(false);
-        }, 800);
-    }, []);
-
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric'
-        });
-    };
-
-    const featuredPost = recentPosts.find(post => post.featured);
-    const regularPosts = recentPosts.filter(post => !post.featured);
+    // Get featured and recent posts
+    const featuredPost = posts.find(post => post.featured) || posts[0];
+    const regularPosts = posts.filter(post => post !== featuredPost).slice(0, 3);
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20">
@@ -108,7 +45,7 @@ const Home = () => {
                         </p>
                     </div>
 
-                    {loading ? (
+                    {isLoading ? (
                         /* Loading Skeleton */
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                             <div className="lg:col-span-8">
@@ -141,48 +78,77 @@ const Home = () => {
                             {featuredPost && (
                                 <div className="lg:col-span-8">
                                     <article className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl group">
-                                        <div className="relative overflow-hidden">
-                                            <img
-                                                src={featuredPost.image}
-                                                alt={featuredPost.title}
-                                                className="w-full h-96 object-cover transition-transform duration-500 group-hover:scale-110"
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
-                                            <div className="absolute top-6 left-6">
-                                                <span className="px-3 py-1 bg-yellow-500 text-black text-sm font-bold rounded-full">
-                                                    ⭐ Featured
-                                                </span>
+                                        {featuredPost.image ? (
+                                            <div className="relative overflow-hidden">
+                                                <img
+                                                    src={featuredPost.image}
+                                                    alt={featuredPost.title}
+                                                    className="w-full h-96 object-cover transition-transform duration-500 group-hover:scale-110"
+                                                />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
+                                                <div className="absolute top-6 left-6">
+                          <span className="px-3 py-1 bg-yellow-500 text-black text-sm font-bold rounded-full">
+                            ⭐ Featured
+                          </span>
+                                                </div>
+                                                <div className="absolute bottom-6 left-6 right-6 text-white">
+                          <span className="px-3 py-1 bg-blue-600 text-white text-sm font-semibold rounded-full">
+                            {featuredPost.category || 'General'}
+                          </span>
+                                                    <h3 className="text-2xl md:text-3xl font-bold mt-4 mb-2">
+                                                        {featuredPost.title}
+                                                    </h3>
+                                                    <p className="text-gray-200 mb-4">
+                                                        {featuredPost.content?.substring(0, 150) + '...' || 'No content available'}
+                                                    </p>
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center">
+                                                            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
+                                <span className="text-white text-sm font-semibold">
+                                  {featuredPost.author?.charAt(0) || 'A'}
+                                </span>
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-semibold">{featuredPost.author || 'Anonymous'}</p>
+                                                                <p className="text-sm text-gray-300">
+                                                                    {formatDate(featuredPost.createdAt)} • {Math.ceil(featuredPost.content?.length / 1000) || 5} min read
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <button className="px-6 py-2 bg-white text-gray-900 font-semibold rounded-lg hover:bg-gray-100 transition-colors duration-200 transform hover:scale-105">
+                                                            Read More
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div className="absolute bottom-6 left-6 right-6 text-white">
-                                                <span className="px-3 py-1 bg-blue-600 text-white text-sm font-semibold rounded-full">
-                                                    {featuredPost.category}
-                                                </span>
-                                                <h3 className="text-2xl md:text-3xl font-bold mt-4 mb-2">
+                                        ) : (
+                                            <div className="p-8">
+                                                <h3 className="text-2xl md:text-3xl font-bold mb-4">
                                                     {featuredPost.title}
                                                 </h3>
-                                                <p className="text-gray-200 mb-4">
-                                                    {featuredPost.excerpt}
+                                                <p className="text-gray-700 dark:text-gray-300 mb-6">
+                                                    {featuredPost.content?.substring(0, 250) + '...' || 'No content available'}
                                                 </p>
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center">
                                                         <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
-                                                            <span className="text-white text-sm font-semibold">
-                                                                {featuredPost.author.charAt(0)}
-                                                            </span>
+                              <span className="text-white text-sm font-semibold">
+                                {featuredPost.author?.charAt(0) || 'A'}
+                              </span>
                                                         </div>
                                                         <div>
-                                                            <p className="font-semibold">{featuredPost.author}</p>
-                                                            <p className="text-sm text-gray-300">
-                                                                {formatDate(featuredPost.publishDate)} • {featuredPost.readTime}
+                                                            <p className="font-semibold">{featuredPost.author || 'Anonymous'}</p>
+                                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                                {formatDate(featuredPost.createdAt)} • {Math.ceil(featuredPost.content?.length / 1000) || 5} min read
                                                             </p>
                                                         </div>
                                                     </div>
-                                                    <button className="px-6 py-2 bg-white text-gray-900 font-semibold rounded-lg hover:bg-gray-100 transition-colors duration-200 transform hover:scale-105">
+                                                    <button className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200 transform hover:scale-105">
                                                         Read More
                                                     </button>
                                                 </div>
                                             </div>
-                                        </div>
+                                        )}
                                     </article>
                                 </div>
                             )}
@@ -203,29 +169,35 @@ const Home = () => {
                                             }}
                                         >
                                             <div className="flex">
-                                                <div className="relative w-24 h-24 overflow-hidden">
-                                                    <img
-                                                        src={post.image}
-                                                        alt={post.title}
-                                                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                                                    />
-                                                </div>
+                                                {post.image ? (
+                                                    <div className="relative w-24 h-24 overflow-hidden">
+                                                        <img
+                                                            src={post.image}
+                                                            alt={post.title}
+                                                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                                                        <span className="text-gray-500 text-2xl">📝</span>
+                                                    </div>
+                                                )}
                                                 <div className="p-4 flex-1">
                                                     <div className="flex items-center justify-between mb-2">
-                                                        <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 text-xs font-semibold rounded">
-                                                            {post.category}
-                                                        </span>
+                            <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 text-xs font-semibold rounded">
+                              {post.category || 'General'}
+                            </span>
                                                         <span className="text-xs text-gray-500 dark:text-gray-400">
-                                                            {formatDate(post.publishDate)}
-                                                        </span>
+                              {formatDate(post.createdAt)}
+                            </span>
                                                     </div>
                                                     <h4 className="font-bold text-gray-900 dark:text-white text-sm mb-2 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
                                                         {post.title}
                                                     </h4>
                                                     <div className="flex items-center justify-between">
-                                                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                                                            {post.readTime}
-                                                        </span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              {Math.ceil(post.content?.length / 1000) || 3} min read
+                            </span>
                                                         <button className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-xs font-medium transition-colors duration-200">
                                                             Read →
                                                         </button>

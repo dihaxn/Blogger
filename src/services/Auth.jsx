@@ -10,18 +10,16 @@ const register = (email, password) => {
     });
 };
 
-const login = (email, password) => {
-    return axios
-        .get(API_URL + `users?email=${email}&password=${password}`)
-        .then((response) => {
-            if (response.data.length > 0) {
-                const user = response.data[0];
-                localStorage.setItem("user", JSON.stringify(user));
-                return user;
-            } else {
-                throw new Error("Invalid credentials");
-            }
-        });
+const login = async (email, password) => {
+    const response = await axios.get(
+        API_URL + `users?email=${email}&password=${password}`
+    );
+
+    if (response.data.length === 0) {
+        throw new Error("Invalid credentials");
+    }
+
+    return response.data[0];
 };
 
 const logout = () => {
@@ -32,11 +30,4 @@ const getCurrentUser = () => {
     return JSON.parse(localStorage.getItem("user"));
 };
 
-const Auth = {
-    register,
-    login,
-    logout,
-    getCurrentUser,
-}
-
-export default Auth;
+export default { register, login, logout, getCurrentUser };

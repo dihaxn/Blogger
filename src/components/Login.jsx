@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { clearMessage } from "../features/message/MessageSlice.jsx";
@@ -23,8 +23,10 @@ export default function Login() {
     };
 
     const validationSchema = Yup.object().shape({
-        email: Yup.string().required("This field is required!"),
-        password: Yup.string().required("This field is required!"),
+        email: Yup.string()
+            .email("Invalid email address")
+            .required("Email is required"),
+        password: Yup.string().required("Password is required"),
     });
 
     const handleLogin = (formValue) => {
@@ -125,7 +127,7 @@ export default function Login() {
                                     {loading ? "Loading..." : "Sign in"}
                                 </button>
                                 <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                                    Don’t have an account yet?{' '}
+                                    Don't have an account yet?{' '}
                                     <a href="/register" className="font-medium hover:underline text-primary-600 dark:text-primary-500">
                                         Sign up
                                     </a>

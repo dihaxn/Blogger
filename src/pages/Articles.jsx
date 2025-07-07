@@ -3,9 +3,10 @@ import { useGetPostsQuery, useUpdatePostMutation, useDeletePostMutation } from '
 import { useSelector } from 'react-redux';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { formatDate } from '../utils/helpers';
 
 const Articles = () => {
-    const { data: articles = [], isLoading, isError } = useGetPostsQuery();
+    const { data: posts = [], isLoading, isError } = useGetPostsQuery();
     const [updatePost] = useUpdatePostMutation();
     const [deletePost] = useDeletePostMutation();
 
@@ -29,22 +30,13 @@ const Articles = () => {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
 
-    const filteredArticles = articles.filter(article => {
+    const filteredArticles = posts.filter(article => {
         const matchesCategory = selectedCategory === 'all' || article.category === selectedCategory;
         const matchesSearch = article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             article.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            article.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+            (article.tags && article.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())));
         return matchesCategory && matchesSearch;
     });
-
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-    };
 
     const handleImageChange = (event, setFieldValue) => {
         const file = event.target.files[0];
@@ -61,7 +53,13 @@ const Articles = () => {
 
     const handleUpdate = async (values) => {
         try {
-            await updatePost({ id: selectedArticle.id, ...values }).unwrap();
+            // Convert tags string to array
+            const updatedValues = {
+                ...values,
+                tags: values.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '')
+            };
+
+            await updatePost({ id: selectedArticle && selectedArticle.id, ...updatedValues });
             setIsEditModalOpen(false);
             setImagePreview(null);
         } catch (err) {
@@ -71,11 +69,16 @@ const Articles = () => {
 
     const handleDelete = async () => {
         try {
-            await deletePost(selectedArticle.id).unwrap();
+            await deletePost(selectedArticle && selectedArticle.id);
             setIsDeleteModalOpen(false);
         } catch (err) {
             console.error('Failed to delete post:', err);
         }
+    };
+
+    const handleReadMore = (articleId) => {
+        // Placeholder for navigation to article detail page
+        console.log('Read more for article:', articleId);
     };
 
     const validationSchema = Yup.object({
@@ -89,8 +92,12 @@ const Articles = () => {
         category: Yup.string()
             .required('Category is required'),
         tags: Yup.string()
-            .min(2, 'At least one tag is required')
             .required('Tags are required')
+            .test('tags-test', 'At least one tag is required', value => {
+                if (!value) return false;
+                const tagsArray = value.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
+                return tagsArray.length > 0;
+            })
     });
 
     if (isLoading) {
@@ -166,7 +173,7 @@ const Articles = () => {
                     <div className="flex flex-wrap justify-center gap-2">
                         {categories.map((category) => (
                             <button
-                                key={category.id}
+                                key={String(category.id ?? 'unknown')}
                                 onClick={() => setSelectedCategory(category.id)}
                                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 transform hover:scale-105 ${
                                     selectedCategory === category.id
@@ -183,46 +190,49 @@ const Articles = () => {
 
                 {/* Articles Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {filteredArticles.map((article, index) => (
+                    {filteredArticles.map((article) => (
                         <article
                             key={article.id}
                             className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl group"
-                            style={{
-                                animationDelay: `${index * 100}ms`
-                            }}
                         >
                             {/* Image */}
                             <div className="relative overflow-hidden">
-                                <img
-                                    src={article.image}
-                                    alt={article.title}
-                                    className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
-                                />
+                                {article.image ? (
+                                    <img
+                                        src={article.image}
+                                        alt={article.title}
+                                        className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+                                    />
+                                ) : (
+                                    <div className="w-full h-48 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                                        <span className="text-gray-400 text-2xl">📷</span>
+                                    </div>
+                                )}
                                 <div className="absolute top-4 left-4">
-                  <span className="px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-full capitalize">
-                    {article.category}
-                  </span>
+                                    <span className="px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-full capitalize">
+                                        {article.category || 'General'}
+                                    </span>
                                 </div>
                                 <div className="absolute top-4 right-4 flex space-x-2">
-                  <span className="flex items-center bg-black bg-opacity-50 text-white px-2 py-1 rounded-full text-xs">
-                    <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                      <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-                    </svg>
-                      {article.views}
-                  </span>
+                                    <span className="flex items-center bg-black bg-opacity-50 text-white px-2 py-1 rounded-full text-xs">
+                                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                            <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                                        </svg>
+                                        123 views
+                                    </span>
                                 </div>
                             </div>
 
                             {/* Content */}
                             <div className="p-6">
                                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    {formatDate(article.publishDate)}
-                  </span>
+                                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                                        {formatDate(article.createdAt)}
+                                    </span>
                                     <span className="text-sm text-blue-600 dark:text-blue-400 font-medium">
-                    {article.readTime}
-                  </span>
+                                        5 min read
+                                    </span>
                                 </div>
 
                                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
@@ -235,13 +245,13 @@ const Articles = () => {
 
                                 {/* Tags */}
                                 <div className="flex flex-wrap gap-2 mb-4">
-                                    {article.tags.slice(0, 3).map((tag) => (
+                                    {Array.isArray(article.tags) && article.tags.slice(0, 3).map((tag) => (
                                         <span
                                             key={tag}
                                             className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs rounded-md"
                                         >
-                      #{tag}
-                    </span>
+                                            #{tag}
+                                        </span>
                                     ))}
                                 </div>
 
@@ -249,13 +259,13 @@ const Articles = () => {
                                 <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
                                     <div className="flex items-center">
                                         <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                      <span className="text-white text-sm font-semibold">
-                        {article.author.charAt(0)}
-                      </span>
+                                            <span className="text-white text-sm font-semibold">
+                                                {article.author?.charAt(0) || 'A'}
+                                            </span>
                                         </div>
                                         <span className="ml-3 text-sm text-gray-700 dark:text-gray-300">
-                      {article.author}
-                    </span>
+                                            {article.author || 'Anonymous'}
+                                        </span>
                                     </div>
 
                                     <div className="flex items-center space-x-3">
@@ -263,19 +273,39 @@ const Articles = () => {
                                             <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
                                             </svg>
-                                            <span className="text-xs">{article.likes}</span>
+                                            <span className="text-xs">42</span>
                                         </button>
 
-                                        <button
-                                            onClick={() => {
-                                                setSelectedArticle(article);
-                                                setIsEditModalOpen(true);
-                                                setImagePreview(article.image);
-                                            }}
-                                            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200 transform hover:scale-105"
-                                        >
-                                            Read More
-                                        </button>
+                                        {isAdmin ? (
+                                            <>
+                                                <button
+                                                    onClick={() => {
+                                                        setSelectedArticle(article);
+                                                        setIsEditModalOpen(true);
+                                                        setImagePreview(article.image);
+                                                    }}
+                                                    className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setSelectedArticle(article);
+                                                        setIsDeleteModalOpen(true);
+                                                    }}
+                                                    className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors duration-200"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <button
+                                                onClick={() => handleReadMore(article.id)}
+                                                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                                            >
+                                                Read More
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -308,13 +338,16 @@ const Articles = () => {
 
             {/* Edit Modal */}
             {isEditModalOpen && selectedArticle && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 transition-opacity duration-300 ease-in-out">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto transform transition-transform duration-300 scale-95 animate-fadeIn">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
                         <div className="p-8">
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Edit Article</h2>
                                 <button
-                                    onClick={() => setIsEditModalOpen(false)}
+                                    onClick={() => {
+                                        setIsEditModalOpen(false);
+                                        setImagePreview(null);
+                                    }}
                                     className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200"
                                 >
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -325,22 +358,21 @@ const Articles = () => {
 
                             <Formik
                                 initialValues={{
-                                    title: selectedArticle.title,
-                                    content: selectedArticle.content,
-                                    category: selectedArticle.category,
-                                    tags: selectedArticle.tags.join(', '),
-                                    image: null,
+                                    title: article.title,
+                                    content: article.content,
+                                    category: article.category,
+                                    tags: article.tags?.join(', ') || '',
                                 }}
                                 validationSchema={validationSchema}
                                 onSubmit={handleUpdate}
                             >
-                                {({ errors, touched, setFieldValue, values }) => (
+                                {({ errors, touched, setFieldValue }) => (
                                     <Form className="space-y-6">
                                         <div className="grid grid-cols-1 gap-6">
                                             <div className="group">
                                                 <label
                                                     htmlFor="title"
-                                                    className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors group-focus-within:text-blue-600"
+                                                    className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
                                                 >
                                                     Article Title
                                                 </label>
@@ -358,14 +390,14 @@ const Articles = () => {
                                                 <ErrorMessage
                                                     name="title"
                                                     component="div"
-                                                    className="text-red-500 text-sm mt-1 animate-pulse"
+                                                    className="text-red-500 text-sm mt-1"
                                                 />
                                             </div>
 
                                             <div className="group">
                                                 <label
                                                     htmlFor="content"
-                                                    className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors group-focus-within:text-blue-600"
+                                                    className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
                                                 >
                                                     Article Content
                                                 </label>
@@ -384,7 +416,7 @@ const Articles = () => {
                                                 <ErrorMessage
                                                     name="content"
                                                     component="div"
-                                                    className="text-red-500 text-sm mt-1 animate-pulse"
+                                                    className="text-red-500 text-sm mt-1"
                                                 />
                                             </div>
 
@@ -392,7 +424,7 @@ const Articles = () => {
                                                 <div className="group">
                                                     <label
                                                         htmlFor="category"
-                                                        className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors group-focus-within:text-blue-600"
+                                                        className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
                                                     >
                                                         Category
                                                     </label>
@@ -408,7 +440,7 @@ const Articles = () => {
                                                     >
                                                         <option value="">Select a category</option>
                                                         {categories.filter(c => c.id !== 'all').map(category => (
-                                                            <option key={category.id} value={category.id}>
+                                                            <option key={String(category.id ?? 'unknown')} value={String(category.id ?? 'unknown')}>
                                                                 {category.name}
                                                             </option>
                                                         ))}
@@ -416,14 +448,14 @@ const Articles = () => {
                                                     <ErrorMessage
                                                         name="category"
                                                         component="div"
-                                                        className="text-red-500 text-sm mt-1 animate-pulse"
+                                                        className="text-red-500 text-sm mt-1"
                                                     />
                                                 </div>
 
                                                 <div className="group">
                                                     <label
                                                         htmlFor="tags"
-                                                        className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors group-focus-within:text-blue-600"
+                                                        className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
                                                     >
                                                         Tags
                                                     </label>
@@ -441,7 +473,7 @@ const Articles = () => {
                                                     <ErrorMessage
                                                         name="tags"
                                                         component="div"
-                                                        className="text-red-500 text-sm mt-1 animate-pulse"
+                                                        className="text-red-500 text-sm mt-1"
                                                     />
                                                 </div>
                                             </div>
@@ -465,15 +497,23 @@ const Articles = () => {
                                                         <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 10MB</p>
                                                     </div>
 
-                                                    {imagePreview && (
-                                                        <div className="w-32 h-32 rounded-lg overflow-hidden shadow-lg transform transition-transform hover:scale-105">
+                                                    {imagePreview ? (
+                                                        <div className="w-32 h-32 rounded-lg overflow-hidden shadow-lg">
                                                             <img
                                                                 src={imagePreview}
                                                                 alt="Preview"
                                                                 className="w-full h-full object-cover"
                                                             />
                                                         </div>
-                                                    )}
+                                                    ) : article.image ? (
+                                                        <div className="w-32 h-32 rounded-lg overflow-hidden shadow-lg">
+                                                            <img
+                                                                src={article.image}
+                                                                alt="Current"
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        </div>
+                                                    ) : null}
                                                 </div>
                                             </div>
                                         </div>
@@ -491,7 +531,7 @@ const Articles = () => {
                                             </button>
                                             <button
                                                 type="submit"
-                                                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg transition-all duration-300 hover:from-blue-700 hover:to-purple-700 transform hover:-translate-y-1"
+                                                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg transition-all duration-300 hover:from-blue-700 hover:to-purple-700"
                                             >
                                                 Update Article
                                             </button>
@@ -506,8 +546,8 @@ const Articles = () => {
 
             {/* Delete Confirmation Modal */}
             {isDeleteModalOpen && selectedArticle && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 transition-opacity duration-300 ease-in-out">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-md transform transition-transform duration-300 scale-95 animate-fadeIn">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-md">
                         <div className="p-8">
                             <div className="text-center">
                                 <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100">
@@ -518,7 +558,7 @@ const Articles = () => {
                                 <h3 className="mt-5 text-lg font-medium text-gray-900 dark:text-white">Delete Article</h3>
                                 <div className="mt-2">
                                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        Are you sure you want to delete <span className="font-semibold">{selectedArticle.title}</span>? This action cannot be undone.
+                                        Are you sure you want to delete <span className="font-semibold">{article.title}</span>? This action cannot be undone.
                                     </p>
                                 </div>
                                 <div className="mt-8 flex justify-center space-x-4">

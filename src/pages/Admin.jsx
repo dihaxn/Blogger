@@ -14,7 +14,7 @@ const Admin = () => {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                
+
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -54,7 +54,7 @@ const Admin = () => {
                             <AddArticle />
                         </div>
                     )}
-                    
+
                     {activeTab === 'manage-articles' && (
                         <div className="animate-fadeIn">
                             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
@@ -67,7 +67,7 @@ const Admin = () => {
                             </div>
                         </div>
                     )}
-                    
+
                     {activeTab === 'users' && (
                         <div className="animate-fadeIn">
                             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
@@ -80,7 +80,7 @@ const Admin = () => {
                             </div>
                         </div>
                     )}
-                    
+
                     {activeTab === 'analytics' && (
                         <div className="animate-fadeIn">
                             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">

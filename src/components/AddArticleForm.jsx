@@ -1,12 +1,15 @@
-
 import React, { useState } from 'react';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { useAddPostMutation } from '../features/post/PostApiSlice';
+import { useSelector } from 'react-redux';
 
 const AddArticle = () => {
     const [imagePreview, setImagePreview] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitMessage, setSubmitMessage] = useState('');
+    const [addPost] = useAddPostMutation();
+    const { user } = useSelector((state) => state.auth);
 
     const initialValues = {
         topic: '',
@@ -34,16 +37,16 @@ const AddArticle = () => {
 
     const handleImageChange = (event, setFieldValue) => {
         const file = event.target.files[0];
-        if (file) {
-            setFieldValue('image', file);
-            
-            // Create preview
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
+        if (!file) return;
+
+        setFieldValue('image', file);
+
+        // Create preview
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setImagePreview(reader.result);
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleSubmit = async (values, { resetForm }) => {
@@ -51,21 +54,26 @@ const AddArticle = () => {
         setSubmitMessage('');
 
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            
-            console.log('Article data:', {
-                ...values,
-                tags: values.tags.split(',').map(tag => tag.trim())
-            });
+            // Prepare post data
+            const postData = {
+                title: values.heading,
+                content: values.content,
+                category: values.topic,
+                tags: values.tags.split(',').map(tag => tag.trim()),
+                image: imagePreview,
+                author: user.email,
+                authorId: user.id,
+                published: true,
+                createdAt: new Date().toISOString(),
+            };
 
+            // Call API
+            await addPost(postData).unwrap();
             setSubmitMessage('Article published successfully!');
             resetForm();
             setImagePreview(null);
-            
-            // Clear success message after 3 seconds
-            setTimeout(() => setSubmitMessage(''), 3000);
         } catch (error) {
+            console.error('Publish error:', error);
             setSubmitMessage('Failed to publish article. Please try again.');
         } finally {
             setIsSubmitting(false);
@@ -90,14 +98,14 @@ const AddArticle = () => {
                     validationSchema={validationSchema}
                     onSubmit={handleSubmit}
                 >
-                    {({ errors, touched, setFieldValue, values }) => (
+                    {({ errors, touched, setFieldValue }) => (
                         <Form className="space-y-6">
                             {/* Topic and Heading Row */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {/* Topic */}
                                 <div className="group">
-                                    <label 
-                                        htmlFor="topic" 
+                                    <label
+                                        htmlFor="topic"
                                         className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors group-focus-within:text-blue-600"
                                     >
                                         Topic Category
@@ -131,8 +139,8 @@ const AddArticle = () => {
 
                                 {/* Heading */}
                                 <div className="group">
-                                    <label 
-                                        htmlFor="heading" 
+                                    <label
+                                        htmlFor="heading"
                                         className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors group-focus-within:text-blue-600"
                                     >
                                         Article Heading
@@ -158,8 +166,8 @@ const AddArticle = () => {
 
                             {/* Content */}
                             <div className="group">
-                                <label 
-                                    htmlFor="content" 
+                                <label
+                                    htmlFor="content"
                                     className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors group-focus-within:text-blue-600"
                                 >
                                     Article Content
@@ -185,8 +193,8 @@ const AddArticle = () => {
 
                             {/* Image Upload */}
                             <div className="group">
-                                <label 
-                                    htmlFor="image" 
+                                <label
+                                    htmlFor="image"
                                     className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
                                 >
                                     Featured Image
@@ -202,7 +210,7 @@ const AddArticle = () => {
                                         />
                                         <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 10MB</p>
                                     </div>
-                                    
+
                                     {imagePreview && (
                                         <div className="w-32 h-32 rounded-lg overflow-hidden shadow-lg transform transition-transform hover:scale-105">
                                             <img
@@ -217,8 +225,8 @@ const AddArticle = () => {
 
                             {/* Tags */}
                             <div className="group">
-                                <label 
-                                    htmlFor="tags" 
+                                <label
+                                    htmlFor="tags"
                                     className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors group-focus-within:text-blue-600"
                                 >
                                     Tags
@@ -254,7 +262,7 @@ const AddArticle = () => {
                                         </div>
                                     )}
                                 </div>
-                                
+
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
