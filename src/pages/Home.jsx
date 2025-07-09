@@ -22,9 +22,12 @@ const Home = () => {
                         Discover amazing stories, insights, and knowledge from our community of passionate writers
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fadeInUp" style={{animationDelay: '0.4s'}}>
-                        <button className="px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg shadow-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105">
+                        <a
+                            href="/articles"
+                            className="px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg shadow-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105"
+                        >
                             Explore Articles
-                        </button>
+                        </a>
                         <button className="px-8 py-4 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-blue-600 transition-all duration-300 transform hover:scale-105">
                             Join Community
                         </button>
@@ -214,9 +217,12 @@ const Home = () => {
                                     <p className="text-blue-100 mb-4 text-sm">
                                         Explore our full collection of articles
                                     </p>
-                                    <button className="px-6 py-2 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105">
+                                    <a
+                                        href="/articles"
+                                        className="px-6 py-2 bg-white text-blue-600 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105"
+                                    >
                                         View All Articles
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
                         </div>
